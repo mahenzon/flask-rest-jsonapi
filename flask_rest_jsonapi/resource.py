@@ -118,7 +118,7 @@ class ResourceList(with_metaclass(ResourceMeta, Resource)):
                                 qs,
                                 qs.include)
 
-        result = schema.dump(objects).data
+        result = schema.dump(objects)
 
         view_kwargs = request.view_args if getattr(self, 'view_kwargs', None) is True else dict()
         add_pagination_links(result,
@@ -145,7 +145,7 @@ class ResourceList(with_metaclass(ResourceMeta, Resource)):
                                 qs.include)
 
         try:
-            data, errors = schema.load(json_data)
+            data = schema.load(json_data)
         except IncorrectTypeError as e:
             errors = e.messages
             for error in errors['errors']:
@@ -159,17 +159,11 @@ class ResourceList(with_metaclass(ResourceMeta, Resource)):
                 message['title'] = "Validation error"
             return errors, 422
 
-        if errors:
-            for error in errors['errors']:
-                error['status'] = "422"
-                error['title'] = "Validation error"
-            return errors, 422
-
         self.before_post(args, kwargs, data=data)
 
         obj = self.create_object(data, kwargs)
 
-        result = schema.dump(obj).data
+        result = schema.dump(obj)
 
         if result['data'].get('links', {}).get('self'):
             final_result = (result, 201, {'Location': result['data']['links']['self']})
@@ -225,7 +219,7 @@ class ResourceDetail(with_metaclass(ResourceMeta, Resource)):
                                 qs,
                                 qs.include)
 
-        result = schema.dump(obj).data
+        result = schema.dump(obj)
 
         final_result = self.after_get(result)
 
@@ -248,7 +242,7 @@ class ResourceDetail(with_metaclass(ResourceMeta, Resource)):
                                 qs.include)
 
         try:
-            data, errors = schema.load(json_data)
+            data = schema.load(json_data)
         except IncorrectTypeError as e:
             errors = e.messages
             for error in errors['errors']:
@@ -262,12 +256,6 @@ class ResourceDetail(with_metaclass(ResourceMeta, Resource)):
                 message['title'] = "Validation error"
             return errors, 422
 
-        if errors:
-            for error in errors['errors']:
-                error['status'] = "422"
-                error['title'] = "Validation error"
-            return errors, 422
-
         if 'id' not in json_data['data']:
             raise BadRequest('Missing id in "data" node',
                              source={'pointer': '/data/id'})
@@ -279,7 +267,7 @@ class ResourceDetail(with_metaclass(ResourceMeta, Resource)):
 
         obj = self.update_object(data, qs, kwargs)
 
-        result = schema.dump(obj).data
+        result = schema.dump(obj)
 
         final_result = self.after_patch(result)
 
@@ -363,7 +351,7 @@ class ResourceRelationship(with_metaclass(ResourceMeta, Resource)):
             schema = compute_schema(self.schema, dict(), qs, qs.include)
 
             serialized_obj = schema.dump(obj)
-            result['included'] = serialized_obj.data.get('included', dict())
+            result['included'] = serialized_obj.get('included', dict())
 
         final_result = self.after_get(result)
 
