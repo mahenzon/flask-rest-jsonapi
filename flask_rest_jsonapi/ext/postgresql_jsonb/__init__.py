@@ -8,7 +8,7 @@ from sqlalchemy import cast, String, Integer, Boolean, DECIMAL, not_
 from sqlalchemy.sql.elements import or_
 from sqlalchemy.sql.operators import desc_op, asc_op
 
-from flask_rest_jsonapi.data_layers.filtering.alchemy import deserialize_field
+from flask_rest_jsonapi.data_layers.shared import deserialize_field
 from marshmallow import Schema, fields as ma_fields
 
 from flask_rest_jsonapi.exceptions import InvalidFilters
